@@ -30,21 +30,17 @@ if (!feedUser) {
 
 	Query q = new Query("feedUser");
 	q.addFilter("googleId", Query.FilterOperator.EQUAL, user.userId);
-	def list = datastoreService.prepare(q).asList(withLimit(1));
-	if (!list) {
+	feedUser = datastoreService.prepare(q).asSingleEntity();
+	if (!feedUser) {
 		feedUser = new Entity("feedUser");
 		feedUser.googleId = user.userId;
 		feedUser.email = user.email;
 		feedUser.save();
 
-
-
 		xmppService.sendInvitation(new JID(feedUser.email));
 
 		//TODO: Send an email message to welcome..
-	} else {
-		feedUser = list[0];
-	}
+	} 
 }
 
 q = new Query("feedSource", feedUser.key);
