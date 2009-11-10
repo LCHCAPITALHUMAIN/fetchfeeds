@@ -42,10 +42,10 @@ if (userMap == null || userMap.isEmpty()) {
 memcacheService.delete(email);
 
 private void notifyXmpp(String to, String chat) {
-	JID jid = new JID(to);
-	if (xmppService.getPresence(jid).isAvailable()) {
-		com.google.appengine.api.xmpp.Message msg = new MessageBuilder().withRecipientJids(jid).withBody(chat).build();
-		xmppService.sendMessage(msg);
+	// check if the user is online
+	if (xmppService.getPresence(to).isAvailable()) {
+		// send the message
+		xmppService.send(to: to, body: chat)
 	}
 }
 

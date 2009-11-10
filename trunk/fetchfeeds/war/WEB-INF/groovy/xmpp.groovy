@@ -16,18 +16,10 @@
  */
 
 
-import com.google.appengine.api.xmpp.MessageBuilder
-import com.google.appengine.api.xmpp.Message
-import com.google.appengine.api.xmpp.SendResponse;
-import com.google.appengine.api.xmpp.JID
-
-
-
 String msgBody = 'I\'m a stupid echo bot yet :  "' + message.body + '"';
-Message msg = new MessageBuilder().withRecipientJids(new JID(message.from)).withBody(msgBody).build();
 
 if (xmppService.getPresence(message.from).isAvailable()) {
-  SendResponse status = xmppService.sendMessage(msg);
+	xmppService.send(to: message.from, body: msgBody)
 }
 
 
