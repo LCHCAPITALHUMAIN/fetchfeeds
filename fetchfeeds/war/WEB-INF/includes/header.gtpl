@@ -12,7 +12,7 @@
         </div>
         <div align="right">
     		<h2>Welcome ${session.getAttribute('feedUser').email}</h2>
-        	<% logout = userService.createLogoutURL("/cleanSession.groovy") %>
+        	<% logout = users.createLogoutURL("/cleanSession.groovy") %>
 			<p><a href="${logout}">Logout</a></p>
 		</div>
 		<div id="content" align="center">

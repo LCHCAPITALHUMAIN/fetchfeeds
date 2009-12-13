@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.octo.fetchfeeds.beans.FeedItem;
-import com.google.appengine.api.urlfetch.URLFetchService
 import com.google.appengine.api.urlfetch.HTTPRequest
 import com.google.appengine.api.urlfetch.HTTPResponse
 import com.sun.syndication.io.SyndFeedInput
@@ -35,7 +34,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 def email = request.getParameter('email');
 def feedSourceKey = KeyFactory.stringToKey(request.getParameter('feedSourceKey'));
 
-def feedSource = datastoreService.get(feedSourceKey);
+def feedSource = datastore.get(feedSourceKey);
 def lastUpdate = null;
 
 def feedItems = getNewFeedEntries(feedSource.url, feedSource.lastUpdate);
@@ -43,15 +42,15 @@ def feedItems = getNewFeedEntries(feedSource.url, feedSource.lastUpdate);
 if (feedItems.size() > 0) {
   def userMap;
 
-  if (memcacheService.contains(email)) {
-    userMap = memcacheService.get(email);
+  if (email in memcache) {
+    userMap = memcache[email];
   } else {
     userMap = new HashMap<String, List<FeedItem>>();
   }
 
   userMap.put(feedItems[0].getSource(), feedItems);
 
-  memcacheService.put(email, userMap);
+  memcache[email] = userMap;
 
   //update lastUpdate
   feedSource.lastUpdate = getLastDate(feedItems);
@@ -73,7 +72,7 @@ private Date getLastDate(List<FeedItem> feedItems) {
 public List<FeedItem> getNewFeedEntries(String url, Date lastFeedDate) {
 
   HTTPRequest request = new HTTPRequest(new URL(url));
-  HTTPResponse response = urlFetchService.fetch(request);
+  HTTPResponse response = urlFetch.fetch(request);
 
   SyndFeedInput input = new SyndFeedInput();
   SyndFeed feed = input.build(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(response.getContent()), "UTF-8")));

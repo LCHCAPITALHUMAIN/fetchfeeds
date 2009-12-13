@@ -24,23 +24,20 @@ import static com.google.appengine.api.datastore.FetchOptions.Builder.*;
 
 Query q = new Query("feedUser");
 
-def feedUsers = datastoreService.prepare(q).asList(withLimit(10000));
+def feedUsers = datastore.prepare(q).asList(withLimit(10000));
 
 feedUsers.each {
 	def email = it.email;
 
 	q = new Query("feedSource", it.key);
-	def feedSources = datastoreService.prepare(q).asList(withLimit(1000));
+	def feedSources = datastore.prepare(q).asList(withLimit(1000));
 
 	feedSources.each {
-		String feedSourceKey = KeyFactory.keyToString(it.key);
-
-		TaskOptions fetchFeedsTask = TaskOptions.Builder.url("/fetchFeeds.groovy").param("email", email).param("feedSourceKey", feedSourceKey);
-
-		defaultQueue.add(fetchFeedsTask);
+		defaultQueue <<	[
+		                 url: "/fetchFeeds.groovy",
+		                 params: [email: email, feedSourceKey: KeyFactory.keyToString(it.key)]
+		                 ]
 	}
-
-	TaskOptions notifyTask = TaskOptions.Builder.url("/notify.groovy").param("email", email);
-
-	defaultQueue.add(notifyTask);
+	
+	defaultQueue <<	[ url: "/notify.groovy", params: [email: email] ]
 }
