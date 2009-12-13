@@ -28,38 +28,40 @@ import com.octo.fetchfeeds.beans.FeedItem;
 
 def email = request.getParameter('email');
 
-def userMap = memcacheService.get(email);
+def userMap = memcache[email];
 
 //cas où il n'y a pas de nouveaux feeds
 if (userMap == null || userMap.isEmpty()) {
   //Do nothing...
   //notifyXmpp(email, "No new feed found");
 } else {
-  	sendMail(email, userMap)
+  	sendMail(email, buildMailHtmlBody(userMap))
 	notifyXmpp(email, "New feed fetched and sent by email.")
 }
 
-memcacheService.delete(email);
+memcache.delete(email);
 
 private void notifyXmpp(String to, String chat) {
 	// check if the user is online
-	if (xmppService.getPresence(to).isAvailable()) {
+	if (xmpp.getPresence(to).isAvailable()) {
 		// send the message
-		xmppService.send(to: to, body: chat)
+		xmpp.send(to: to, body: chat)
 	}
 }
 
-private void sendMail(String to, Map<String, List<FeedItem>> userMap) throws IOException {
-	Message message = new Message();
-	message.setTo(to);
-     //TODO : use some developper account of your google app here
-	message.setSender("fetchfeedsdemo@gmail.com");
-	message.setSubject("You have new feeds !");
+private void sendMail(String to, String htmlBody) throws IOException {
+	//TODO : use some developper account of your google app here
+	mail.send(sender: "fetchfeedsdemo@gmail.com",
+			  to: to,
+			  subject: "You have new feeds !",
+			  htmlBody: htmlBody)
+}
 
+private String buildMailHtmlBody(Map<String, List<FeedItem>> userMap) {
 	StringBuilder sb = new StringBuilder();
-
+	
 	def df = new SimpleDateFormat("dd/MM/yyyy");
-
+	
 	userMap.entrySet().each {
 		sb.append("<p><h3>" + it.getKey() + "<i>  (" + it.getValue().size() + ")</i></h3>");
 		for (FeedItem item : it.getValue()) {
@@ -71,6 +73,6 @@ private void sendMail(String to, Map<String, List<FeedItem>> userMap) throws IOE
 		sb.append("</p>");
 	}
 	sb.append("<p><i>Sent by \"<b><a href='http://fetchfeeds.appspot.com'>Fetch-Feeds</a></b>\"</i></p>");
-	message.setHtmlBody(sb.toString());
-	mailService.send(message);
+	
+	return sb.toString();
 }

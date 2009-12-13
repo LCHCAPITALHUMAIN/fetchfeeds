@@ -30,21 +30,21 @@ if (!feedUser) {
 
 	Query q = new Query("feedUser");
 	q.addFilter("googleId", Query.FilterOperator.EQUAL, user.userId);
-	feedUser = datastoreService.prepare(q).asSingleEntity();
+	feedUser = datastore.prepare(q).asSingleEntity();
 	if (!feedUser) {
 		feedUser = new Entity("feedUser");
 		feedUser.googleId = user.userId;
 		feedUser.email = user.email;
 		feedUser.save();
 
-		xmppService.sendInvitation(new JID(feedUser.email));
+		xmpp.sendInvitation(new JID(feedUser.email));
 
 		//TODO: Send an email message to welcome..
 	} 
 }
 
 q = new Query("feedSource", feedUser.key);
-def feedSources = datastoreService.prepare(q).asList(withLimit(1000));
+def feedSources = datastore.prepare(q).asList(withLimit(1000));
 securedSession['feedSources'] = feedSources;
 securedSession['feedUser'] = feedUser;
 

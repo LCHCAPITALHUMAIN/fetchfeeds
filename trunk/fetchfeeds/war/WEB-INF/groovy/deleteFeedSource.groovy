@@ -19,7 +19,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 def key = KeyFactory.stringToKey(request.getParameter('key'));
 
-datastoreService.delete(key);
+datastore.delete(key);
 
 def feedSources = session['feedSources'];
 
