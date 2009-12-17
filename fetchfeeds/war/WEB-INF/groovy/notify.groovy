@@ -29,11 +29,7 @@ import com.octo.fetchfeeds.beans.FeedItem
 def email = request.getParameter('email')
 def userMap = memcache[email]
 
-//cas où il n'y a pas de nouveaux feeds
-if (userMap == null || userMap.isEmpty()) {
-  //Do nothing...
-  //notifyXmpp(email, "No new feed found");
-} else {
+if (userMap != null && !userMap.isEmpty()) {
   	sendMail(email, buildMailHtmlBody(userMap))
 	notifyXmpp(email, "New feed fetched and sent by email.")
 }
@@ -48,7 +44,7 @@ private void notifyXmpp(String to, String chat) {
 	}
 }
 
-private void sendMail(String to, String htmlBody) throws IOException {
+private void sendMail(String to, String htmlBody) {
 	//TODO : use some developper account of your google app here
 	mail.send(sender: "fetchfeedsdemo@gmail.com",
 			  to: to,
