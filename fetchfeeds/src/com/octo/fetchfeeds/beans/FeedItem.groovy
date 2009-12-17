@@ -21,12 +21,12 @@ import java.util.Date;
 
 class FeedItem implements Serializable {
 	
-	private static final long serialVersionUID = 7517187575539756676;
+	private static final long serialVersionUID = 7517187575539756676
 
-	String title;
-	String source;
-	Date publishedDate;
-	String link;
+	String title
+	String source
+	Date publishedDate
+	String link
 
 	String toString() { 'title : ' + title + ' | source : ' + source + ' | publishedDate : ' + publishedDate + ' | link : ' + link}
 

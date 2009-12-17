@@ -15,38 +15,38 @@
  * limitations under the License.
  */
 
-import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.xmpp.JID
+import com.google.appengine.api.datastore.Entity
+import com.google.appengine.api.datastore.Query
 
 
-import static com.google.appengine.api.datastore.FetchOptions.Builder.*;
+import static com.google.appengine.api.datastore.FetchOptions.Builder.*
 
 
-def securedSession = request.getSession(true);
-def feedUser = securedSession['feedUser'];
+def securedSession = request.getSession(true)
+def feedUser = securedSession['feedUser']
 
 if (!feedUser) {
 
-	Query q = new Query("feedUser");
-	q.addFilter("googleId", Query.FilterOperator.EQUAL, user.userId);
-	feedUser = datastore.prepare(q).asSingleEntity();
+	def q = new Query("feedUser")
+	q.addFilter("googleId", Query.FilterOperator.EQUAL, user.userId)
+	feedUser = datastore.prepare(q).asSingleEntity()
 	if (!feedUser) {
-		feedUser = new Entity("feedUser");
-		feedUser.googleId = user.userId;
-		feedUser.email = user.email;
-		feedUser.save();
+		feedUser = new Entity("feedUser")
+		feedUser.googleId = user.userId
+		feedUser.email = user.email
+		feedUser.save()
 
-		xmpp.sendInvitation(new JID(feedUser.email));
+		xmpp.sendInvitation(new JID(feedUser.email))
 
 		//TODO: Send an email message to welcome..
 	} 
 }
 
-q = new Query("feedSource", feedUser.key);
-def feedSources = datastore.prepare(q).asList(withLimit(1000));
-securedSession['feedSources'] = feedSources;
-securedSession['feedUser'] = feedUser;
+q = new Query("feedSource", feedUser.key)
+def feedSources = datastore.prepare(q).asList(withLimit(1000))
+securedSession['feedSources'] = feedSources
+securedSession['feedUser'] = feedUser
 
 
 forward "panel.gtpl"

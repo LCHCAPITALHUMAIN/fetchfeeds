@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.labs.taskqueue.TaskOptions;
+import com.google.appengine.api.datastore.Key
+import com.google.appengine.api.datastore.KeyFactory
+import com.google.appengine.api.datastore.Query
+import com.google.appengine.api.labs.taskqueue.TaskOptions
 
-import static com.google.appengine.api.datastore.FetchOptions.Builder.*;
+import static com.google.appengine.api.datastore.FetchOptions.Builder.*
 
 
-Query q = new Query("feedUser");
+def q = new Query("feedUser")
 
-def feedUsers = datastore.prepare(q).asList(withLimit(10000));
+def feedUsers = datastore.prepare(q).asList(withLimit(10000))
 
 feedUsers.each {
-	def email = it.email;
+	def email = it.email
 
-	q = new Query("feedSource", it.key);
-	def feedSources = datastore.prepare(q).asList(withLimit(1000));
+	q = new Query("feedSource", it.key)
+	def feedSources = datastore.prepare(q).asList(withLimit(1000))
 
 	feedSources.each {
 		defaultQueue <<	[

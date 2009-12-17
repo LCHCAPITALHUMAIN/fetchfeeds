@@ -16,7 +16,7 @@
  */
 
 
-String msgBody = 'I\'m a stupid echo bot yet :  "' + message.body + '"';
+String msgBody = 'I\'m a stupid echo bot yet :  "' + message.body + '"'
 
 if (xmpp.getPresence(message.from).isAvailable()) {
 	xmpp.send(to: message.from, body: msgBody)

@@ -15,80 +15,77 @@
  * limitations under the License.
  */
 
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException
+import java.util.Date
+import java.util.HashMap
+import java.util.List
+import java.util.Map
 
-import javax.servlet.ServletException;
+import javax.servlet.ServletException
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.octo.fetchfeeds.beans.FeedItem;
+import com.google.appengine.api.datastore.Key
+import com.google.appengine.api.datastore.KeyFactory
+import com.octo.fetchfeeds.beans.FeedItem
 import com.google.appengine.api.urlfetch.HTTPRequest
 import com.google.appengine.api.urlfetch.HTTPResponse
 import com.sun.syndication.io.SyndFeedInput
-import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.SyndFeed
 
-def email = request.getParameter('email');
-def feedSourceKey = KeyFactory.stringToKey(request.getParameter('feedSourceKey'));
-
-def feedSource = datastore.get(feedSourceKey);
-def lastUpdate = null;
-
-def feedItems = getNewFeedEntries(feedSource.url, feedSource.lastUpdate);
+def email = request.getParameter('email')
+def feedSourceKey = KeyFactory.stringToKey(request.getParameter('feedSourceKey'))
+def feedSource = datastore.get(feedSourceKey)
+def lastUpdate = null
+def feedItems = getNewFeedEntries(feedSource.url, feedSource.lastUpdate)
 
 if (feedItems.size() > 0) {
-  def userMap;
+  def userMap
 
   if (email in memcache) {
-    userMap = memcache[email];
+    userMap = memcache[email]
   } else {
-    userMap = new HashMap<String, List<FeedItem>>();
+    userMap = new HashMap<String, List<FeedItem>>()
   }
 
-  userMap.put(feedItems[0].getSource(), feedItems);
+  userMap.put(feedItems[0].getSource(), feedItems)
 
-  memcache[email] = userMap;
+  memcache[email] = userMap
 
   //update lastUpdate
-  feedSource.lastUpdate = getLastDate(feedItems);
-  feedSource.save();
+  feedSource.lastUpdate = getLastDate(feedItems)
+  feedSource.save()
 }
-
-private Date getLastDate(List<FeedItem> feedItems) {
-  Date result = feedItems[0].publishedDate;
-
-  feedItems.each {
-    if (it.publishedDate.after(result))
-      result = it.publishedDate;
-  }
-
-  return result;
-}
-
 
 public List<FeedItem> getNewFeedEntries(String url, Date lastFeedDate) {
 
-  HTTPRequest request = new HTTPRequest(new URL(url));
-  HTTPResponse response = urlFetch.fetch(request);
+  HTTPRequest request = new HTTPRequest(new URL(url))
+  HTTPResponse response = urlFetch.fetch(request)
 
-  SyndFeedInput input = new SyndFeedInput();
-  SyndFeed feed = input.build(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(response.getContent()), "UTF-8")));
+  SyndFeedInput input = new SyndFeedInput()
+  SyndFeed feed = input.build(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(response.getContent()), "UTF-8")))
 
-  List<FeedItem> result = new ArrayList<FeedItem>();
+  def list = new ArrayList<FeedItem>()
 
-  String source = feed.getTitle();
+  String source = feed.getTitle()
 
   feed.getEntries().each {
-    Date publishedDate = it.getPublishedDate();
+    Date publishedDate = it.getPublishedDate()
 
     if (publishedDate == null || lastFeedDate == null || publishedDate > lastFeedDate) {
-      result.add(new FeedItem(title: it.getTitle(), source: source, link: it.getLink(), publishedDate: publishedDate))
+		list.add(new FeedItem(title: it.getTitle(), source: source, link: it.getLink(), publishedDate: publishedDate))
     }
-  };
+  }
 
-  return result;
+  return list
 
+}
+
+private Date getLastDate(List<FeedItem> feedItems) {
+	def lastDate = feedItems[0].publishedDate
+	
+	feedItems.each {
+		if (it.publishedDate.after(lastDate))
+			lastDate = it.publishedDate;
+	}
+	
+	return lastDate
 }
