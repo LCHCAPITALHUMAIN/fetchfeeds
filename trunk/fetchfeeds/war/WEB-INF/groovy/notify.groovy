@@ -14,21 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.io.IOException;
+import java.io.IOException
 
-import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat
 
-import java.util.List;
-import java.util.Map;
+import java.util.List
+import java.util.Map
 
-import com.google.appengine.api.mail.MailService.Message;
-import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.api.xmpp.MessageBuilder;
-import com.octo.fetchfeeds.beans.FeedItem;
+import com.google.appengine.api.mail.MailService.Message
+import com.google.appengine.api.xmpp.JID
+import com.google.appengine.api.xmpp.MessageBuilder
+import com.octo.fetchfeeds.beans.FeedItem
 
-def email = request.getParameter('email');
-
-def userMap = memcache[email];
+def email = request.getParameter('email')
+def userMap = memcache[email]
 
 //cas où il n'y a pas de nouveaux feeds
 if (userMap == null || userMap.isEmpty()) {
@@ -58,21 +57,21 @@ private void sendMail(String to, String htmlBody) throws IOException {
 }
 
 private String buildMailHtmlBody(Map<String, List<FeedItem>> userMap) {
-	StringBuilder sb = new StringBuilder();
-	
+	def sb = new StringBuilder()
 	def df = new SimpleDateFormat("dd/MM/yyyy");
 	
 	userMap.entrySet().each {
-		sb.append("<p><h3>" + it.getKey() + "<i>  (" + it.getValue().size() + ")</i></h3>");
+		sb.append("<p><h3>" + it.getKey() + "<i>  (" + it.getValue().size() + ")</i></h3>")
 		for (FeedItem item : it.getValue()) {
-			sb.append("<a href=\"" + item.getLink() + "\">" + item.getTitle() + "</a>");
-			if (item.getPublishedDate() != null)
-				sb.append("<i> - " + df.format(item.getPublishedDate()) + "</i>");
-			sb.append("<br />");
+			sb.append("<a href=\"" + item.getLink() + "\">" + item.getTitle() + "</a>")
+			if (item.getPublishedDate() != null) {
+				sb.append("<i> - " + df.format(item.getPublishedDate()) + "</i>")
+			}
+			sb.append("<br />")
 		}
-		sb.append("</p>");
+		sb.append("</p>")
 	}
-	sb.append("<p><i>Sent by \"<b><a href='http://fetchfeeds.appspot.com'>Fetch-Feeds</a></b>\"</i></p>");
+	sb.append("<p><i>Sent by \"<b><a href='http://fetchfeeds.appspot.com'>Fetch-Feeds</a></b>\"</i></p>")
 	
-	return sb.toString();
+	return sb.toString()
 }

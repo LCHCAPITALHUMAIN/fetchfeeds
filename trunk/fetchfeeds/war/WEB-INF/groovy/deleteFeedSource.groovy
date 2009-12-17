@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.KeyFactory
 
-def key = KeyFactory.stringToKey(request.getParameter('key'));
+def key = KeyFactory.stringToKey(request.getParameter('key'))
 
-datastore.delete(key);
+datastore.delete(key)
 
-def feedSources = session['feedSources'];
+def feedSources = session['feedSources']
 
-def remove = false;
+def remove = false
 def i = 0;
 while (!remove && i < feedSources.size()) {
-	def temp = feedSources[i];
+	def temp = feedSources[i]
 
 	if (temp.key == key) {
-		feedSources.remove(i);
-		remove = true;
-		session['feedSources'] = feedSources;
+		feedSources.remove(i)
+		remove = true
+		session['feedSources'] = feedSources
 	}
 
-	i++;
+	i++
 }
 
 redirect "/"

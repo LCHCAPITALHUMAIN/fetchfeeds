@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Entity
+import com.google.appengine.api.datastore.Query
 
+import static com.google.appengine.api.datastore.FetchOptions.Builder.*
 
-import static com.google.appengine.api.datastore.FetchOptions.Builder.*;
-
-def userEntity = session.getAttribute("feedUser");
-
-String url = params["url"].toLowerCase().trim();
+def userEntity = session.getAttribute("feedUser")
+def url = params["url"].toLowerCase().trim()
 
 
 def pattern = ~/^[h|H][t|T][t|T][p|P]:\/\/.*$/
@@ -31,8 +29,8 @@ if (!pattern.matcher(url).matches()) {
 	session.setAttribute("error", "'${url}' n'est pas une URL http valide");
 } else {
 
-	def found = false;
-	def feedSources = session['feedSources'];
+	def found = false
+	def feedSources = session['feedSources']
 
 	feedSources.each{
 		if (url == it.url)
@@ -40,12 +38,12 @@ if (!pattern.matcher(url).matches()) {
 	}
 
 	if (!found) {
-		def source = new Entity("feedSource", userEntity.key);
-		source.url = url;
-		source.lastUpdate = null;
-		source.save();
-		feedSources.add(source);
-		session['feedSources'] = feedSources;
+		def source = new Entity("feedSource", userEntity.key)
+		source.url = url
+		source.lastUpdate = null
+		source.save()
+		feedSources.add(source)
+		session['feedSources'] = feedSources
 	}
 }
 
